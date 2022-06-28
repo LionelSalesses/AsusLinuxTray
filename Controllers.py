@@ -49,7 +49,7 @@ class GfxController:
     
     def setMode(self, mode):
         assert mode in self.supportedModes
-        #execCommand("supergfxctl", ["-m", mode])   # TODO
+        execCommand("supergfxctl", ["-m", mode])
 
 
 class PowerProfileController:
