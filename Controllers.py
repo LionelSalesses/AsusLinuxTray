@@ -29,6 +29,11 @@ class GfxController:
         mode = result.decode("utf-8").rstrip('\r\n').lower()
         return mode
         
+    def getPendingModeChange(self):
+        result = execCommand("supergfxctl", ["-P"])
+        mode = result.decode("utf-8").rstrip('\r\n').lower()
+        return mode
+        
     def get_dGPUStatus(self):
         result = execCommand("supergfxctl", ["-S"])
         mode = result.decode("utf-8").rstrip('\r\n').lower()
