@@ -8,12 +8,12 @@ from Theme import iconTheme, styleSheets
 
 
 class SelectorWidget(QWidget):
-    def __init__(self, options, initiallyCheckedOption, onSelect, parent=None):
+    def __init__(self, alternatives, initiallyCheckedAlternative, onSelect, parent=None):
         super().__init__(parent=parent)
         self.onSelect = onSelect
-        self.initUI(options, initiallyCheckedOption)
+        self.initUI(alternatives, initiallyCheckedAlternative)
     
-    def initUI(self, options, initiallyCheckedOption):
+    def initUI(self, alternatives, initiallyCheckedAlternative):
         # Vertical inner layout
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -21,31 +21,31 @@ class SelectorWidget(QWidget):
         # Create button group for mutually exclusive radio/checkbox buttons
         self.selectorGroup = QButtonGroup(self)
         
-        self.options = {}
-        for optionID, option in enumerate(options):
-            optionText, optionWidgetClass = option
-            optionWidget = optionWidgetClass(optionText)
-            if optionText == initiallyCheckedOption:
-                optionWidget.setChecked(True)
-            self.selectorGroup.addButton(optionWidget, id=optionID)
-            self.layout.addWidget(optionWidget)
-            self.options[optionID] = optionWidget
+        self.selectorAlternatives = {}
+        for widgetID, alternativeInfo in enumerate(alternatives):
+            altText, altWidgetClass = alternativeInfo
+            altWidget = altWidgetClass(altText)
+            if altText == initiallyCheckedAlternative:
+                altWidget.setChecked(True)
+            self.selectorGroup.addButton(altWidget, id=widgetID)
+            self.layout.addWidget(altWidget)
+            self.selectorAlternatives[widgetID] = altWidget
         
         self.selectorGroup.buttonClicked.connect(self.onClick)
         
-    def setSelectedOption(self, option):
-        for optionID, optionWidget in self.options.items():
-            if option == optionWidget.text():
-                optionWidget.setChecked(True)
+    def setSelectedAlternative(self, alternative):
+        for widgetID, altWidget in self.selectorAlternatives.items():
+            if alternative == altWidget.text():
+                altWidget.setChecked(True)
                 return
         raise RuntimeError(
-            "SelectorWidget.setSelectedOption(): Unregistered option '"+ option +"'"
+            "SelectorWidget.setSelectedAlternative(): Unregistered alternative '"+ alternative +"'"
         )
         
     def onClick(self, _):
-        optionID = self.selectorGroup.checkedId()
-        selectedOption = self.options[optionID].text()
-        self.onSelect(selectedOption)
+        widgetID = self.selectorGroup.checkedId()
+        selectedAlternative = self.selectorAlternatives[widgetID].text()
+        self.onSelect(selectedAlternative)
 
 
 class PowerProfileView(QWidget):
@@ -84,19 +84,19 @@ class PowerProfileView(QWidget):
     
     def refresh(self):
         currentProfile = self.powerProfileController.getCurrentProfile()
-        self.selectorWidget.setSelectedOption(currentProfile)
+        self.selectorWidget.setSelectedAlternative(currentProfile)
     
-    def onSelect(self, selectedOption):
-        print("Select power profile '" + selectedOption + "'")
+    def onSelect(self, selectedAlternative):
+        print("Select power profile '" + selectedAlternative + "'")
         try:
-            self.powerProfileController.setProfile(selectedOption)
+            self.powerProfileController.setProfile(selectedAlternative)
             self.notifyMethod(
-                "Power profile successfully changed to '" + selectedOption + "'"
+                "Power profile successfully changed to '" + selectedAlternative + "'"
             )
-            print("Power profile successfully changed to " + selectedOption + "'")
+            print("Power profile successfully changed to " + selectedAlternative + "'")
         except CmdExecError as e:
             self.notifyMethod(
-                "Failed to set '" + selectedOption + "' as new power profile.\n"
+                "Failed to set '" + selectedAlternative + "' as new power profile.\n"
                 "Message: " + e.message
             )
         self.refresh()
@@ -151,20 +151,20 @@ class GfxModeView(QWidget):
     
     def refresh(self):
         currentMode = self.gfxController.getCurrentMode()
-        self.selectorWidget.setSelectedOption(currentMode)
+        self.selectorWidget.setSelectedAlternative(currentMode)
         self.dGPUStatusLabel.setText(self.dGPUStatus())
     
-    def onSelect(self, selectedOption):
-        print("Select gfx mode '" + selectedOption + "'")
+    def onSelect(self, selectedAlternative):
+        print("Select gfx mode '" + selectedAlternative + "'")
         try:
-            self.gfxController.setMode(selectedOption)
+            self.gfxController.setMode(selectedAlternative)
             self.notifyMethod(
-                "Graphics mode changed to '" + selectedOption + "', a logout is required to complete."
+                "Graphics mode changed to '" + selectedAlternative + "', a logout is required to complete."
             )
-            print("Gfx mode successfully changed to " + selectedOption + "'")
+            print("Gfx mode successfully changed to " + selectedAlternative + "'")
         except CmdExecError as e:
             self.notifyMethod(
-                "Failed to set '" + selectedOption + "' as new graphics mode.\n"
+                "Failed to set '" + selectedAlternative + "' as new graphics mode.\n"
                 "Message: " + e.message
             )
         self.refresh()
