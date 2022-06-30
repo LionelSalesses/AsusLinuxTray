@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QButtonGroup, QCheckBox, QLabel, QMessageBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QButtonGroup, QCheckBox, QRadioButton, QWidgetAction, QLabel, QFrame, QSizePolicy
 import PyQt5.QtCore
 from QIconLabel import QIconLabel
 from Controllers import GfxController, PowerProfileController, CmdExecError
@@ -39,8 +39,7 @@ class SelectorWidget(QWidget):
                 altWidget.setChecked(True)
                 return
         raise RuntimeError(
-            "Internal error in SelectorWidget.setSelectedAlternative(): "
-            "Unregistered alternative '"+ alternative +"'"
+            "SelectorWidget.setSelectedAlternative(): Unregistered alternative '"+ alternative +"'"
         )
         
     def onClick(self, _):
@@ -50,10 +49,11 @@ class SelectorWidget(QWidget):
 
 
 class PowerProfileView(QWidget):
-    def __init__(self, powerProfileController, parent=None):
+    def __init__(self, powerProfileController, notifyMethod, parent=None):
         super().__init__(parent=parent)
         assert isinstance(powerProfileController, PowerProfileController)
         self.powerProfileController = powerProfileController
+        self.notifyMethod = notifyMethod
         self.initUI()
         self.setStyleSheet(styleSheets['PowerProfileView'])
     
@@ -61,7 +61,6 @@ class PowerProfileView(QWidget):
         # Vertical inner layout
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.layout.setSizeConstraint(QLayout.SetFixedSize)
         
         # Create view title
         self.viewTitle = QIconLabel(
@@ -91,22 +90,24 @@ class PowerProfileView(QWidget):
         print("Select power profile '" + selectedAlternative + "'")
         try:
             self.powerProfileController.setProfile(selectedAlternative)
+            self.notifyMethod(
+                "Power profile successfully changed to '" + selectedAlternative + "'"
+            )
             print("Power profile successfully changed to " + selectedAlternative + "'")
         except CmdExecError as e:
-            QMessageBox.warning(
-                None,
-                "System Manager Tray",
-                "Failed to set <b>" + selectedAlternative + "</b> as new power profile.<br>"
-                "<u>Message:</u> "+e.getMessage()
+            self.notifyMethod(
+                "Failed to set '" + selectedAlternative + "' as new power profile.\n"
+                "Message: " + e.message
             )
         self.refresh()
 
 
 class GfxModeView(QWidget):
-    def __init__(self, gfxController, parent=None):
+    def __init__(self, gfxController, notifyMethod, parent=None):
         super().__init__(parent=parent)
         assert isinstance(gfxController, GfxController)
         self.gfxController = gfxController
+        self.notifyMethod = notifyMethod
         self.initUI()
         self.setStyleSheet(styleSheets['GfxModeView'])
     
@@ -114,7 +115,6 @@ class GfxModeView(QWidget):
         # Vertical inner layout
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.layout.setSizeConstraint(QLayout.SetFixedSize)
         
         # Create view title
         self.viewTitle = QIconLabel(
@@ -139,18 +139,9 @@ class GfxModeView(QWidget):
         # Spacing
         self.layout.addSpacing(10)
         
-        # Pending gfx mode alert widget 
-        self.pendingModeWidget = QIconLabel(QIcon(iconTheme['Warning']), '', size=40, hSpacing=5, parent=self)
-        self.layout.addWidget(self.pendingModeWidget)
-        self.pendingModeWidget.hide()
-        self.pendingModeWidget.setStyleSheet(styleSheets['GfxModeView::PendingModeLabel'])
-
-        # Spacing
-        self.layout.addSpacing(10)
-        
         # dGPU status widget
         self.dGPUStatusLabel = QIconLabel(
-            QIcon(iconTheme['dGPUStatus']), self.dGPUStatus(), size=20, hSpacing=5, parent=self
+            QIcon(iconTheme['dGPUStatus']), self.dGPUStatus(), size=20, hSpacing=5
         )
         self.dGPUStatusLabel.setStyleSheet(styleSheets['GfxModeView::QIconLabel'])
         self.layout.addWidget(self.dGPUStatusLabel)
@@ -159,40 +150,22 @@ class GfxModeView(QWidget):
         return self.gfxController.getGPUVendor() + " GPU status: " + self.gfxController.get_dGPUStatus()
     
     def refresh(self):
-        self.refreshSelectorWidget()
-        # Refresh pending mode widget
-        self.refreshPendingModeWidget()
-        # Refresh dGPU status
-        self.dGPUStatusLabel.setText(self.dGPUStatus())
-    
-    def refreshSelectorWidget(self):
         currentMode = self.gfxController.getCurrentMode()
         self.selectorWidget.setSelectedAlternative(currentMode)
-    
-    def refreshPendingModeWidget(self):
-        pendingMode = self.gfxController.getPendingModeChange()
-        if pendingMode == 'none':
-            self.pendingModeWidget.hide()
-        else:
-            self.pendingModeWidget.setText(
-                "Pending mode: <b>" + pendingMode + "</b><br>Logout required to complete"
-            )
-            self.pendingModeWidget.show()
+        self.dGPUStatusLabel.setText(self.dGPUStatus())
     
     def onSelect(self, selectedAlternative):
         print("Select gfx mode '" + selectedAlternative + "'")
         try:
             self.gfxController.setMode(selectedAlternative)
-            print("Gfx mode successfully changed to '" + selectedAlternative + "'")
-            self.refresh()
-            self.parent().hide()   # TODO méthode dans la classe parent pour reset le menu
-            self.parent().popup(self.parent().pos())
-        except CmdExecError as e:
-            QMessageBox.warning(
-                None,
-                "System Manager Tray",
-                "Failed to set <b>" + selectedAlternative + "</b> as new graphics mode.<br>"
-                "<u>Message:</u> "+e.getMessage()
+            self.notifyMethod(
+                "Graphics mode changed to '" + selectedAlternative + "', a logout is required to complete."
             )
-            self.refresh()
-
+            print("Gfx mode successfully changed to " + selectedAlternative + "'")
+        except CmdExecError as e:
+            self.notifyMethod(
+                "Failed to set '" + selectedAlternative + "' as new graphics mode.\n"
+                "Message: " + e.message
+            )
+        self.refresh()
+    
