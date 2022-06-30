@@ -40,7 +40,7 @@ class SystemManagerTray(QSystemTrayIcon):
     def checkSupport(self):
         if not self.isSystemTrayAvailable() or not self.supportsMessages():
             self.notifyError(
-                'CRIT',
+                'CRITICAL',
                 "System tray is not supported on your system"
             )
     
@@ -50,18 +50,18 @@ class SystemManagerTray(QSystemTrayIcon):
             self.powerProfileController = PowerProfileController()
         except CmdExecError as e:
             self.notifyError(
-                'CRIT',
+                'CRITICAL',
                 "Failed to initialize controllers...<br>"
                 "Message: "+e.getMessage()
             )
         print("Controllers initialized")
     
     def notifyError(self, severity, message):
-        assert severity in ['ERR', 'CRIT']
-        if severity == 'CRIT':
+        assert severity in ['ERROR', 'CRITICAL']
+        if severity == 'CRITICAL':
             QMessageBox.critical(self.parent(), "System Manager Tray", message)
             sys.exit(1)
-        elif severity == 'ERR':
+        elif severity == 'ERROR':
             QMessageBox.warning(self.parent(), "System Manager Tray", message)
             
     def refresh(self):

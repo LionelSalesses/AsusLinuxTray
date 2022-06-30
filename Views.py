@@ -95,7 +95,7 @@ class PowerProfileView(QWidget):
             print("Power profile successfully changed to " + selectedAlternative + "'")
         except CmdExecError as e:
             self.onNotifyError(
-                'ERR',
+                'ERROR',
                 "Failed to set <b>" + selectedAlternative + "</b> as new power profile.<br>"
                 "<u>Message:</u> "+e.getMessage()
             )
@@ -194,7 +194,7 @@ class GfxModeView(QWidget):
             self.onGeometryChange()
         except CmdExecError as e:
             self.onNotifyError(
-                'ERR',
+                'ERROR',
                 "Failed to set <b>" + selectedAlternative + "</b> as new graphics mode.<br>"
                 "<u>Message:</u> "+e.getMessage()
             )
