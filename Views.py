@@ -50,10 +50,11 @@ class SelectorWidget(QWidget):
 
 
 class PowerProfileView(QWidget):
-    def __init__(self, powerProfileController, parent=None):
+    def __init__(self, powerProfileController, onNotifyError, parent=None):
         super().__init__(parent=parent)
         assert isinstance(powerProfileController, PowerProfileController)
         self.powerProfileController = powerProfileController
+        self.onNotifyError = onNotifyError
         self.initUI()
         self.setStyleSheet(styleSheets['PowerProfileView'])
     
@@ -93,9 +94,8 @@ class PowerProfileView(QWidget):
             self.powerProfileController.setProfile(selectedAlternative)
             print("Power profile successfully changed to " + selectedAlternative + "'")
         except CmdExecError as e:
-            QMessageBox.warning(
-                None,
-                "System Manager Tray",
+            self.onNotifyError(
+                'ERR',
                 "Failed to set <b>" + selectedAlternative + "</b> as new power profile.<br>"
                 "<u>Message:</u> "+e.getMessage()
             )
@@ -103,11 +103,12 @@ class PowerProfileView(QWidget):
 
 
 class GfxModeView(QWidget):
-    def __init__(self, gfxController, onGeometryChange, parent=None):
+    def __init__(self, gfxController, onGeometryChange, onNotifyError, parent=None):
         super().__init__(parent=parent)
         assert isinstance(gfxController, GfxController)
         self.gfxController = gfxController
         self.onGeometryChange = onGeometryChange
+        self.onNotifyError = onNotifyError
         self.initUI()
         self.setStyleSheet(styleSheets['GfxModeView'])
     
@@ -192,9 +193,8 @@ class GfxModeView(QWidget):
             # Notify parent of geometry change
             self.onGeometryChange()
         except CmdExecError as e:
-            QMessageBox.warning(
-                None,
-                "System Manager Tray",
+            self.onNotifyError(
+                'ERR',
                 "Failed to set <b>" + selectedAlternative + "</b> as new graphics mode.<br>"
                 "<u>Message:</u> "+e.getMessage()
             )

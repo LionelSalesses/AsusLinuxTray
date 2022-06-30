@@ -39,27 +39,31 @@ class SystemManagerTray(QSystemTrayIcon):
     
     def checkSupport(self):
         if not self.isSystemTrayAvailable() or not self.supportsMessages():
-            QMessageBox.critical(
-                None,
-                "System Manager Tray",
+            self.notifyError(
+                'CRIT',
                 "System tray is not supported on your system"
             )
-            sys.exit(1)
     
     def initControllers(self):
         try:
             self.gfxController = GfxController()
             self.powerProfileController = PowerProfileController()
         except CmdExecError as e:
-            QMessageBox.critical(
-                None,
-                "System Manager Tray",
+            self.notifyError(
+                'CRIT',
                 "Failed to initialize controllers...<br>"
                 "Message: "+e.getMessage()
             )
-            sys.exit(1)
         print("Controllers initialized")
     
+    def notifyError(self, severity, message):
+        assert severity in ['ERR', 'CRIT']
+        if severity == 'CRIT':
+            QMessageBox.critical(self.parent(), "System Manager Tray", message)
+            sys.exit(1)
+        elif severity == 'ERR':
+            QMessageBox.warning(self.parent(), "System Manager Tray", message)
+            
     def refresh(self):
         print("Refresh")
         self.powerProfileView.refresh()
@@ -88,6 +92,7 @@ class SystemManagerTray(QSystemTrayIcon):
         # Power profile view
         self.powerProfileView = PowerProfileView(
             self.powerProfileController,
+            self.notifyError,
             parent=menu
         )
         menu.addAction(self.widgetToAction(menu, self.powerProfileView))
@@ -99,6 +104,7 @@ class SystemManagerTray(QSystemTrayIcon):
         self.gfxModeView = GfxModeView(
             self.gfxController,
             self.redrawMenu,
+            self.notifyError,
             parent=menu
         )
         menu.addAction(self.widgetToAction(menu, self.gfxModeView))
