@@ -36,7 +36,7 @@ class SystemManagerTray(QSystemTrayIcon):
     def showMenuOnTrigger(self, reason):
         if reason == QSystemTrayIcon.Trigger:
             self.contextMenu().popup(QCursor.pos())
-            
+    
     def checkSupport(self):
         if not self.isSystemTrayAvailable() or not self.supportsMessages():
             QMessageBox.critical(
@@ -46,9 +46,6 @@ class SystemManagerTray(QSystemTrayIcon):
             )
             sys.exit(1)
     
-    def sendNotification(self, msg):
-        self.showMessage("System Manager Tray", msg, QSystemTrayIcon.NoIcon, msecs=4*1000)
-        
     def initControllers(self):
         try:
             self.gfxController = GfxController()
@@ -57,21 +54,30 @@ class SystemManagerTray(QSystemTrayIcon):
             QMessageBox.critical(
                 None,
                 "System Manager Tray",
-                "Failed to initialize controllers...\n"
-                "Message: "+e.message
+                "Failed to initialize controllers...<br>"
+                "Message: "+e.getMessage()
             )
+            sys.exit(1)
         print("Controllers initialized")
-        
+    
     def refresh(self):
+        print("Refresh")
         self.powerProfileView.refresh()
         self.gfxModeView.refresh()
+        # Send resize event to handle views geometry changing
+        resizeEvent = PyQt5.QtGui.QResizeEvent(PyQt5.QtCore.QSize(), self.menu.size())
+        self.app.sendEvent(self.menu, resizeEvent)
+    
+    def redrawMenu(self):
+        self.menu.hide()
+        self.menu.popup(self.menu.pos())
     
     def createMenuAction(self, menu, actionText, method):
         action = QAction(actionText, menu)
         action.triggered.connect(method)
         menu.addAction(action)
         return action
-        
+    
     def widgetToAction(self, parent, widget):
         # Create widget action to insert into the menu
         wAction = QWidgetAction(parent)
@@ -82,7 +88,6 @@ class SystemManagerTray(QSystemTrayIcon):
         # Power profile view
         self.powerProfileView = PowerProfileView(
             self.powerProfileController,
-            self.sendNotification,
             parent=menu
         )
         menu.addAction(self.widgetToAction(menu, self.powerProfileView))
@@ -93,15 +98,14 @@ class SystemManagerTray(QSystemTrayIcon):
         # Graphics mode
         self.gfxModeView = GfxModeView(
             self.gfxController,
-            self.sendNotification,
+            self.redrawMenu,
             parent=menu
         )
-
         menu.addAction(self.widgetToAction(menu, self.gfxModeView))
     
     def createMenuSeparator(self, menu):
         menu.addSeparator()
-        
+    
     def setMenuStyle(self, menu):
         menu.setWindowFlags(menu.windowFlags() | PyQt5.QtCore.Qt.FramelessWindowHint)
         menu.setAttribute(PyQt5.QtCore.Qt.WA_TranslucentBackground)
@@ -120,7 +124,5 @@ class SystemManagerTray(QSystemTrayIcon):
         
         menu.aboutToShow.connect(self.refresh)
         return menu
-    
-
 
 

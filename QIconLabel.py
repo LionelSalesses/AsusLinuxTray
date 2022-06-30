@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
 class QIconLabel(QWidget):
     def __init__(self, icon, text, size=64, hSpacing=10, parent=None, final_stretch=True):
         super().__init__(parent)
-        
+        # self.setObjectName("QIconLabel")  # TODO
         self.iconSize = QSize(size, size)
 
         layout = QHBoxLayout()
