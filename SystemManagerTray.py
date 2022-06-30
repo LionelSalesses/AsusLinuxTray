@@ -45,10 +45,7 @@ class SystemManagerTray(QSystemTrayIcon):
                 "System tray is not supported on your system"
             )
             sys.exit(1)
-    
-    def sendNotification(self, msg):
-        self.showMessage("System Manager Tray", msg, QSystemTrayIcon.NoIcon, msecs=4*1000)
-        
+           
     def initControllers(self):
         try:
             self.gfxController = GfxController()
@@ -57,14 +54,18 @@ class SystemManagerTray(QSystemTrayIcon):
             QMessageBox.critical(
                 None,
                 "System Manager Tray",
-                "Failed to initialize controllers...\n"
-                "Message: "+e.message
+                "Failed to initialize controllers...<br>"
+                "Message: "+e.getMessage()
             )
+            sys.exit(1)
         print("Controllers initialized")
         
     def refresh(self):
         self.powerProfileView.refresh()
         self.gfxModeView.refresh()
+        # TODO send resize event only if needed ?
+        resizeEvent = PyQt5.QtGui.QResizeEvent(PyQt5.QtCore.QSize(), self.menu.size())
+        self.app.sendEvent(self.menu, resizeEvent)
     
     def createMenuAction(self, menu, actionText, method):
         action = QAction(actionText, menu)
@@ -82,7 +83,6 @@ class SystemManagerTray(QSystemTrayIcon):
         # Power profile view
         self.powerProfileView = PowerProfileView(
             self.powerProfileController,
-            self.sendNotification,
             parent=menu
         )
         menu.addAction(self.widgetToAction(menu, self.powerProfileView))
@@ -93,10 +93,8 @@ class SystemManagerTray(QSystemTrayIcon):
         # Graphics mode
         self.gfxModeView = GfxModeView(
             self.gfxController,
-            self.sendNotification,
             parent=menu
         )
-
         menu.addAction(self.widgetToAction(menu, self.gfxModeView))
     
     def createMenuSeparator(self, menu):

@@ -17,10 +17,12 @@ class QIconLabel(QWidget):
         self.iconLabel = QLabel()
         iconPixmap = icon.pixmap(self.iconSize)
         self.iconLabel.setPixmap(iconPixmap)
+        self.iconLabel.setObjectName("iconLabel")
 
         layout.addWidget(self.iconLabel)
         layout.addSpacing(hSpacing)
         self.textLabel = QLabel(text)
+        self.textLabel.setObjectName("textLabel")
         layout.addWidget(self.textLabel)
         self.textLabel.setAlignment(Qt.AlignCenter);
 
