@@ -2,20 +2,41 @@ from subprocess import Popen, PIPE
 
 
 class CmdExecError(Exception):
-    def __init__(self, message, errors):
-        super().__init__(message)
-        self.message = message
-        self.errors = errors
+    def __init__(self, cmd, args, cmdExitCode, cmdStdOut, cmdStdErr):
+        super().__init__()
+        self.cmd = cmd
+        self.args = args
+        self.cmdExitCode = cmdExitCode
+        self.cmdStdOut = cmdStdOut
+        self.cmdStdErr = cmdStdErr
+    
+    def getMessage(self):
+        msg = "<blockquote>"
+        msg += "Command: '" + self.cmd + " " + " ".join(self.args) + "'"
+        msg += "<br>"
+        msg += "Exit code: " + str(self.cmdExitCode)
+        msg += "<br>"
+        if len(self.cmdStdOut) > 0:
+            msg += "Output: " + self.cmdStdOut
+            msg += "<br>"
+        if len(self.cmdStdErr) > 0:
+            msg += "Error: " + self.cmdStdErr
+            msg += "<br>"
+        msg += "</blockquote>"
+        return msg
 
 
 def execCommand(cmd, args):
-    process = Popen([cmd] + args, stdout=PIPE)
+    process = Popen([cmd] + args, stdout=PIPE, stderr=PIPE)
     (output, err) = process.communicate()
     exit_code = process.wait()
     if exit_code != 0:
         raise CmdExecError(
-            "Something failed when calling ''" + cmd + " " + " ".join(args) + "'",
-            (output, err, exit_code, cmd, args)
+            cmd,
+            args,
+            exit_code,
+            output.decode("utf-8").rstrip('\r\n'),
+            err.decode("utf-8").rstrip('\r\n'), 
         )
     return output
 
@@ -59,7 +80,7 @@ class GfxController:
 
 class PowerProfileController:
     def __init__(self):
-        self.availableProfiles = ['power-saver', 'balanced', 'performance']
+        self.availableProfiles = ['power-saver', 'balanced', 'performance']  # Currently hardcoded
     
     def getCurrentProfile(self):
         result = execCommand("powerprofilesctl", ["get"])
