@@ -65,7 +65,6 @@ class SystemManagerTray(QSystemTrayIcon):
             QMessageBox.warning(self.parent(), "System Manager Tray", message)
             
     def refresh(self):
-        print("Refresh")
         self.powerProfileView.refresh()
         self.gfxModeView.refresh()
         # Send resize event to handle views geometry changing
