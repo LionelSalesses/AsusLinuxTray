@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QCursor
 from PyQt5.QtWidgets import QWidgetAction, QMenu, QMessageBox, QAction, QSystemTrayIcon
 import PyQt5.QtCore
 from Controllers import GfxController, PowerProfileController, CmdExecError
-from Theme import iconTheme, styleSheets
+from Theme import iconTheme
 from Views import PowerProfileView, GfxModeView
 
 
@@ -28,7 +28,6 @@ class SystemManagerTray(QSystemTrayIcon):
         
         # Create menu and add to the tray
         self.menu = self.createMenu(parent=parent)
-        self.setMenuStyle(self.menu)
         self.setContextMenu(self.menu)
         
         self.refresh()
@@ -52,7 +51,7 @@ class SystemManagerTray(QSystemTrayIcon):
             self.notifyError(
                 'CRITICAL',
                 "Failed to initialize controllers...<br>"
-                "Message: "+e.getMessage()
+                "Details: "+e.getMessage()
             )
         print("Controllers initialized")
     
@@ -97,7 +96,7 @@ class SystemManagerTray(QSystemTrayIcon):
         menu.addAction(self.widgetToAction(menu, self.powerProfileView))
         
         # Separator
-        self.createMenuSeparator(menu)
+        menu.addSeparator()
         
         # Graphics mode
         self.gfxModeView = GfxModeView(
@@ -108,21 +107,15 @@ class SystemManagerTray(QSystemTrayIcon):
         )
         menu.addAction(self.widgetToAction(menu, self.gfxModeView))
     
-    def createMenuSeparator(self, menu):
-        menu.addSeparator()
-    
-    def setMenuStyle(self, menu):
+    def createMenu(self, parent=None):
+        menu = QMenu(parent)
         menu.setWindowFlags(menu.windowFlags() | PyQt5.QtCore.Qt.FramelessWindowHint)
         menu.setAttribute(PyQt5.QtCore.Qt.WA_TranslucentBackground)
-        menu.setStyleSheet(styleSheets['Menu'])
-
-    def createMenu(self, parent=None):
-        # Creating the options
-        menu = QMenu(parent)
+        
+        # Power and gfx mode selector views
         self.createViews(menu)
         
-        # Separator
-        self.createMenuSeparator(menu)
+        menu.addSeparator()
         
         # Quit action
         self.createMenuAction(menu, "&Quit", self.app.quit)

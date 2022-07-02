@@ -1,9 +1,9 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QButtonGroup, QCheckBox, QLabel, QMessageBox
+from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QButtonGroup, QCheckBox, QLabel
 import PyQt5.QtCore
 from QIconLabel import QIconLabel
 from Controllers import GfxController, PowerProfileController, CmdExecError
-from Theme import iconTheme, styleSheets
+from Theme import iconTheme
 
 
 
@@ -56,7 +56,6 @@ class PowerProfileView(QWidget):
         self.powerProfileController = powerProfileController
         self.onNotifyError = onNotifyError
         self.initUI()
-        self.setStyleSheet(styleSheets['PowerProfileView'])
     
     def initUI(self):
         # Vertical inner layout
@@ -81,7 +80,6 @@ class PowerProfileView(QWidget):
             self.onSelect,
             parent=self
         )
-        self.selectorWidget.setStyleSheet(styleSheets['PowerProfileView::Selector'])
         self.layout.addWidget(self.selectorWidget)
     
     def refresh(self):
@@ -110,7 +108,6 @@ class GfxModeView(QWidget):
         self.onGeometryChange = onGeometryChange
         self.onNotifyError = onNotifyError
         self.initUI()
-        self.setStyleSheet(styleSheets['GfxModeView'])
     
     def initUI(self):
         # Vertical inner layout
@@ -136,26 +133,28 @@ class GfxModeView(QWidget):
             parent=self
         )
         self.layout.addWidget(self.selectorWidget)
-        self.selectorWidget.setStyleSheet(styleSheets['GfxModeView::Selector'])
         
         # Spacing
         self.layout.addSpacing(10)
         
         # Pending gfx mode alert widget 
-        self.pendingModeWidget = QIconLabel(QIcon(iconTheme['Warning']), '', size=40, hSpacing=5, parent=self)
-        self.layout.addWidget(self.pendingModeWidget)
-        self.pendingModeWidget.hide()
-        self.pendingModeWidget.setStyleSheet(styleSheets['GfxModeView::PendingModeLabel'])
+        self.pendingGfxModeAlertWidget = QIconLabel(
+            QIcon(iconTheme['Warning']), 
+            '', size=40, hSpacing=5, parent=self
+        )
+        self.pendingGfxModeAlertWidget.setObjectName("pendingGfxModeAlertWidget")
+        self.layout.addWidget(self.pendingGfxModeAlertWidget)
+        self.pendingGfxModeAlertWidget.hide()
 
         # Spacing
         self.layout.addSpacing(10)
         
         # dGPU status widget
-        self.dGPUStatusLabel = QIconLabel(
+        self.dGPUStatusWidget = QIconLabel(
             QIcon(iconTheme['dGPUStatus']), self.dGPUStatus(), size=20, hSpacing=5, parent=self
         )
-        self.dGPUStatusLabel.setStyleSheet(styleSheets['GfxModeView::QIconLabel'])
-        self.layout.addWidget(self.dGPUStatusLabel)
+        self.dGPUStatusWidget.setObjectName("dGPUStatusWidget")
+        self.layout.addWidget(self.dGPUStatusWidget)
     
     def dGPUStatus(self):
         return self.gfxController.getGPUVendor() + " GPU status: " + self.gfxController.get_dGPUStatus()
@@ -163,25 +162,25 @@ class GfxModeView(QWidget):
     def refresh(self):
         self.refreshSelectorWidget()
         # Refresh pending mode widget
-        self.refreshPendingModeWidget()
+        self.refreshPendingGfxModeAlertWidget()
         # Refresh dGPU status
-        self.dGPUStatusLabel.setText(self.dGPUStatus())
+        self.dGPUStatusWidget.setText(self.dGPUStatus())
     
     def refreshSelectorWidget(self):
         currentMode = self.gfxController.getCurrentMode()
         self.selectorWidget.setSelectedAlternative(currentMode)
     
-    def refreshPendingModeWidget(self):
+    def refreshPendingGfxModeAlertWidget(self):
         pendingMode = self.gfxController.getPendingModeChange()
         if pendingMode == 'none':
             # Disable pending mode alert
-            self.pendingModeWidget.hide()
+            self.pendingGfxModeAlertWidget.hide()
         else:
             # Update and show pending mode alert
-            self.pendingModeWidget.setText(
+            self.pendingGfxModeAlertWidget.setText(
                 "Pending mode: <b>" + pendingMode + "</b><br>Logout required to complete"
             )
-            self.pendingModeWidget.show()
+            self.pendingGfxModeAlertWidget.show()
     
     def onSelect(self, selectedAlternative):
         print("Select gfx mode '" + selectedAlternative + "'")
