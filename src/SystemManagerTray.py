@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QCursor, QResizeEvent
 from PyQt5.QtWidgets import QWidgetAction, QMenu, QMessageBox, QAction, QSystemTrayIcon
 from PyQt5.QtCore import Qt, QSize
 from Controllers import GfxController, PowerProfileController, CmdExecError
-from Theme import iconTheme
+from Theme import getIconPath
 from Views import PowerProfileView, GfxModeView
 
 
@@ -22,7 +22,7 @@ class SystemManagerTray(QSystemTrayIcon):
         self.activated.connect(self.showMenuOnTrigger)
         
         # Set tray icon
-        self.icon = QIcon(iconTheme['Tray'])
+        self.icon = QIcon(getIconPath('Tray'))
         self.setIcon(self.icon)
         self.setVisible(True)
         

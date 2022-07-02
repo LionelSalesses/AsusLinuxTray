@@ -2,7 +2,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QButtonGroup, QCheckBox, QLabel
 from QIconLabel import QIconLabel
 from Controllers import GfxController, PowerProfileController, CmdExecError
-from Theme import iconTheme
+from Theme import getIconPath
 
 
 
@@ -64,7 +64,7 @@ class PowerProfileView(QWidget):
         
         # Create view title
         self.viewTitle = QIconLabel(
-            QIcon(iconTheme['PowerProfileSection']),
+            QIcon(getIconPath('PowerProfileSection')),
             "Power profile",
             parent=self
         )
@@ -116,7 +116,7 @@ class GfxModeView(QWidget):
         
         # Create view title
         self.viewTitle = QIconLabel(
-            QIcon(iconTheme['GfxModeSection']),
+            QIcon(getIconPath('GfxModeSection')),
             "Graphics mode",
             parent=self
         )
@@ -138,7 +138,7 @@ class GfxModeView(QWidget):
         
         # Pending gfx mode alert widget 
         self.pendingGfxModeAlertWidget = QIconLabel(
-            QIcon(iconTheme['Warning']), 
+            QIcon(getIconPath('Warning')), 
             '', size=40, hSpacing=5, parent=self
         )
         self.pendingGfxModeAlertWidget.setObjectName("pendingGfxModeAlertWidget")
@@ -150,7 +150,7 @@ class GfxModeView(QWidget):
         
         # dGPU status widget
         self.dGPUStatusWidget = QIconLabel(
-            QIcon(iconTheme['dGPUStatus']), self.dGPUStatus(), size=20, hSpacing=5, parent=self
+            QIcon(getIconPath('dGPUStatus')), self.dGPUStatus(), size=20, hSpacing=5, parent=self
         )
         self.dGPUStatusWidget.setObjectName("dGPUStatusWidget")
         self.layout.addWidget(self.dGPUStatusWidget)

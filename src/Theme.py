@@ -1,11 +1,24 @@
-# Path to theme icons
+from os.path import join, dirname
+
+
+# Theme icons
 iconTheme = {
-    'PowerProfileSection': 'icons/cpu.png',
-    'GfxModeSection':      'icons/vga.png',
-    'Tray':                'icons/cpu_1_w.png',
-    'dGPUStatus':          'icons/gpu.png',
-    'Warning':             'icons/warning.png',
+    'PowerProfileSection': 'cpu.png',
+    'GfxModeSection':      'vga.png',
+    'Tray':                'cpu_1_w.png',
+    'dGPUStatus':          'gpu.png',
+    'Warning':             'warning.png',
 }
+
+
+def getIconPath(iconName):
+    assert iconName in iconTheme
+    iconFilename = iconTheme[iconName]
+    srcDirectory = dirname(__file__)
+    projectDirectory = dirname(srcDirectory)
+    iconAbsolutePath = join(projectDirectory, 'icons', iconFilename)
+    return iconAbsolutePath
+
 
 # Stylesheet
 qss = """

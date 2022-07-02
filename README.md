@@ -23,7 +23,7 @@ This project depends on:
 
 To start the tray widget:
 ```bash
-python launch.py
+python src/launch.py
 ```
 
 It is recommended to launch this tray widget at startup.
