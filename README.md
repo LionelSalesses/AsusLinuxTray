@@ -26,7 +26,7 @@ To start the tray widget:
 python launch.py
 ```
 
-It is recommended to launch this widget application at startup.
+It is recommended to launch this tray widget at startup.
 
 # Screenshots
 
