@@ -1,7 +1,7 @@
-import sys
-from PyQt5.QtGui import QIcon, QCursor
+from sys import exit
+from PyQt5.QtGui import QIcon, QCursor, QResizeEvent
 from PyQt5.QtWidgets import QWidgetAction, QMenu, QMessageBox, QAction, QSystemTrayIcon
-import PyQt5.QtCore
+from PyQt5.QtCore import Qt, QSize
 from Controllers import GfxController, PowerProfileController, CmdExecError
 from Theme import iconTheme
 from Views import PowerProfileView, GfxModeView
@@ -59,7 +59,7 @@ class SystemManagerTray(QSystemTrayIcon):
         assert severity in ['ERROR', 'CRITICAL']
         if severity == 'CRITICAL':
             QMessageBox.critical(self.parent(), "System Manager Tray", message)
-            sys.exit(1)
+            exit(1)
         elif severity == 'ERROR':
             QMessageBox.warning(self.parent(), "System Manager Tray", message)
             
@@ -67,7 +67,7 @@ class SystemManagerTray(QSystemTrayIcon):
         self.powerProfileView.refresh()
         self.gfxModeView.refresh()
         # Send resize event to handle views geometry changing
-        resizeEvent = PyQt5.QtGui.QResizeEvent(PyQt5.QtCore.QSize(), self.menu.size())
+        resizeEvent = QResizeEvent(QSize(), self.menu.size())
         self.app.sendEvent(self.menu, resizeEvent)
     
     def redrawMenu(self):
@@ -109,8 +109,8 @@ class SystemManagerTray(QSystemTrayIcon):
     
     def createMenu(self, parent=None):
         menu = QMenu(parent)
-        menu.setWindowFlags(menu.windowFlags() | PyQt5.QtCore.Qt.FramelessWindowHint)
-        menu.setAttribute(PyQt5.QtCore.Qt.WA_TranslucentBackground)
+        menu.setWindowFlags(menu.windowFlags() | Qt.FramelessWindowHint)
+        menu.setAttribute(Qt.WA_TranslucentBackground)
         
         # Power and gfx mode selector views
         self.createViews(menu)

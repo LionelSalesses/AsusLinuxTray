@@ -1,6 +1,5 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QButtonGroup, QCheckBox, QLabel
-import PyQt5.QtCore
 from QIconLabel import QIconLabel
 from Controllers import GfxController, PowerProfileController, CmdExecError
 from Theme import iconTheme
