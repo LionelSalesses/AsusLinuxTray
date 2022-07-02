@@ -12,15 +12,15 @@ class CmdExecError(Exception):
     
     def getMessage(self):
         msg = "<blockquote>"
-        msg += "Command: '<i>" + self.cmd + " " + " ".join(self.args) + "</i>'"
+        msg += "<u>Command:</u> '<i>" + self.cmd + " " + " ".join(self.args) + "</i>'"
         msg += "<br>"
-        msg += "Exit code: <i>" + str(self.cmdExitCode) + "</i>"
+        msg += "<u>Exit code:</u> <i>" + str(self.cmdExitCode) + "</i>"
         msg += "<br>"
         if len(self.cmdStdOut) > 0:
-            msg += "Output: <i>" + self.cmdStdOut + "</i>"
+            msg += "<u>Output:</u> <i>" + self.cmdStdOut + "</i>"
             msg += "<br>"
         if len(self.cmdStdErr) > 0:
-            msg += "Error: <i>" + self.cmdStdErr + "</i>"
+            msg += "<u>Error:</u> <i>" + self.cmdStdErr + "</i>"
             msg += "<br>"
         msg += "</blockquote>"
         return msg

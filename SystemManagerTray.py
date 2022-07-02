@@ -50,8 +50,8 @@ class SystemManagerTray(QSystemTrayIcon):
         except CmdExecError as e:
             self.notifyError(
                 'CRITICAL',
-                "Failed to initialize controllers...<br>"
-                "Details: "+e.getMessage()
+                "Failed to initialize controllers...<br>" +
+                e.getMessage()
             )
         print("Controllers initialized")
     

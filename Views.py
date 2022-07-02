@@ -95,7 +95,7 @@ class PowerProfileView(QWidget):
             self.onNotifyError(
                 'ERROR',
                 "Failed to set <b>" + selectedAlternative + "</b> as new power profile.<br>"
-                "<u>Message:</u> "+e.getMessage()
+                +e.getMessage()
             )
         self.refresh()
 
@@ -195,7 +195,7 @@ class GfxModeView(QWidget):
             self.onNotifyError(
                 'ERROR',
                 "Failed to set <b>" + selectedAlternative + "</b> as new graphics mode.<br>"
-                "<u>Message:</u> "+e.getMessage()
+                +e.getMessage()
             )
             self.refresh()
 
