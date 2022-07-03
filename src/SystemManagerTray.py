@@ -44,6 +44,18 @@ class SystemManagerTray(QSystemTrayIcon):
             )
     
     def initControllers(self):
+        if not GfxController.checkSupport():
+            self.notifyError(
+                'CRITICAL',
+                "Cannot find command 'supergfxctl' required by this application."
+                "Please install it first."
+            )
+        if not PowerProfileController.checkSupport():
+            self.notifyError(
+                'CRITICAL',
+                "Cannot find command 'powerprofilectl' required by this application."
+                "Please install it first."
+            )
         try:
             self.gfxController = GfxController()
             self.powerProfileController = PowerProfileController()

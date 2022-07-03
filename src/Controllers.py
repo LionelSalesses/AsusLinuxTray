@@ -76,6 +76,16 @@ class GfxController:
     def setMode(self, mode):
         assert mode in self.supportedModes
         execCommand("supergfxctl", ["-m", mode])
+    
+    @staticmethod
+    def checkSupport():
+        try:
+            result = execCommand("supergfxctl", ["-v"])
+        except (FileNotFoundError, CmdExecError):
+            return False
+        version = result.decode("utf-8").rstrip('\r\n')
+        print("Detected supergfxctl with version ", version)
+        return True
 
 
 class PowerProfileController:
@@ -90,5 +100,14 @@ class PowerProfileController:
     def setProfile(self, profile):
         assert profile in self.availableProfiles
         execCommand("powerprofilesctl", ["set", profile])
-
+    
+    @staticmethod
+    def checkSupport():
+        try:
+            result = execCommand("powerprofilesctl", ["--version"])
+        except (FileNotFoundError, CmdExecError):
+            return False
+        version = result.decode("utf-8").rstrip('\r\n')
+        print("Detected powerprofilesctl with version ", version)
+        return True
 
