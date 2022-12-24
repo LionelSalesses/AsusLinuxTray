@@ -17,7 +17,7 @@ This project depends on:
 - python >= 3   (tested with version 3.10.5)
 - PyQt5
 - powerprofilectl   (tested with version 0.11.1)
-- supergfxctl  (tested with version 4.0.4)
+- supergfxctl  (tested with version 4.0.4, broken with version 5.0.1)
 
 # Usage
 
